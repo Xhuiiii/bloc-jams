@@ -3,7 +3,7 @@ var createSongRow = function(songNumber, songName, songLength){
         '<tr class="album-view-song-item">'
     +   '   <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
     +   '   <td class="song-item-title">' + songName + '</td>'
-    +   '   <td class="song-item-duration">' + songLength + '</td>'
+    +   '   <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
     +   '</tr>'
     ;
     var $row = $(template);
@@ -93,9 +93,33 @@ var updateSeekBarWhileSongPlays = function(){
             var seekBarFillRatio = this.getTime() / this.getDuration();
             var $seekBar = $('.seek-control .seek-bar');
             
+            setCurrentTimeInPlayerBar(filterTimeCode(this.getTime()));
             updateSeekPercentage($seekBar, seekBarFillRatio);
         });
     }
+};
+
+var setCurrentTimeInPlayerBar = function(currentTime){
+    $('.seek-control .current-time').text(currentTime);
+};
+
+var setTotalTimeInPlayerBar = function(totalTime){
+    $('.seek-control .total-time').text(totalTime);
+};
+
+var filterTimeCode = function(timeInSeconds){
+    var seconds = Number.parseFloat(timeInSeconds);
+    var wholeSec = Math.floor(seconds);
+    var minutes = Math.floor(wholeSec / 60);
+    var remainingSec = wholeSec % 60;
+    
+    var output = minutes + ':';
+    if(remainingSec < 10){
+        output += '0';
+    }
+    output += remainingSec;
+    
+    return output;
 };
 
 var updateSeekPercentage = function($seekBar, seekBarFillRatio){
@@ -242,9 +266,9 @@ var getSongNumberCell = function(songNumber){
 var updatePlayerBarSong = function(){
     $('.currently-playing .song-name').text(currentSongFromAlbum.title);
     $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + ' - ' + currentAlbum.artist);
-    $('.currently-playing .artist-name').text(currentAlbum.artist);
-    
+    $('.currently-playing .artist-name').text(currentAlbum.artist);    
     $('.main-controls .play-pause').html(playerBarPauseButton);
+    setTotalTimeInPlayerBar(filterTimeCode(currentSongFromAlbum.duration));
 };
 
 //Album button templates
